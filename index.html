@@ -1,347 +1,45 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>360录屏 — 官方出品</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-tailwind.config={theme:{extend:{colors:{warm:'#F9F4EC',ink:'#2C2C2C'},fontFamily:{sans:['Inter','-apple-system','PingFang SC','Noto Sans SC','system-ui','sans-serif']}}}};
-</script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',-apple-system,'PingFang SC','Noto Sans SC',system-ui,sans-serif;background:#F9F4EC;overflow-x:hidden;color:#2C2C2C}
-
-/* mesh glows */
-.mesh-layer{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
-.orb{position:absolute;border-radius:50%;filter:blur(140px)}
-.orb-1{width:560px;height:560px;background:rgba(167,139,250,.2);top:-12%;right:-4%}
-.orb-2{width:480px;height:480px;background:rgba(255,138,101,.13);bottom:-10%;left:-4%}
-.orb-3{width:300px;height:300px;background:rgba(196,181,253,.18);top:42%;left:44%}
-
-/* soft shadows */
-.shadow-soft{box-shadow:0 8px 30px rgba(0,0,0,.06),0 2px 8px rgba(0,0,0,.03)}
-.shadow-soft-lg{box-shadow:0 16px 48px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.04)}
-.shadow-soft-xl{box-shadow:0 24px 64px rgba(0,0,0,.09),0 8px 24px rgba(0,0,0,.04)}
-.shadow-purple{box-shadow:0 8px 28px rgba(167,139,250,.3)}
-
-/* btn primary — purple gradient */
-@keyframes btn-glow{0%,100%{box-shadow:0 10px 36px rgba(139,92,246,.4)}50%{box-shadow:0 14px 48px rgba(139,92,246,.55)}}
-.btn-primary{display:inline-flex;align-items:center;gap:12px;background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;font-weight:800;font-size:21px;padding:18px 48px;border:1px solid rgba(255,255,255,.15);border-radius:14px;cursor:pointer;text-decoration:none;box-shadow:0 10px 36px rgba(139,92,246,.4);transition:all .25s ease;position:relative}
-.btn-primary::after{content:'';position:absolute;inset:-3px;border-radius:17px;background:linear-gradient(135deg,rgba(255,255,255,.25),transparent 60%);opacity:0;transition:opacity .35s;z-index:-1}
-.btn-primary:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 18px 48px rgba(139,92,246,.5)}
-.btn-primary:hover::after{opacity:1}
-.btn-primary:active{transform:translateY(-1px) scale(1)}
-
-/* btn sm */
-.btn-primary-sm{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#A78BFA,#8B5CF6);color:#fff;font-weight:600;font-size:13px;padding:8px 20px;border:none;border-radius:10px;cursor:pointer;text-decoration:none;box-shadow:0 4px 14px rgba(167,139,250,.3);transition:all .25s ease}
-.btn-primary-sm:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(167,139,250,.4)}
-
-/* tag / badge */
-.tag-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#7C3AED;background:#EDE9FE;border-radius:9999px;padding:6px 16px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
-.tag-pill-sm{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#7C3AED;background:#EDE9FE;border-radius:9999px;padding:4px 12px;box-shadow:0 2px 6px rgba(0,0,0,.03)}
-
-/* feature card */
-.feat-card-v2{background:#fff;border-radius:20px;padding:32px 26px;box-shadow:0 8px 30px rgba(0,0,0,.06),0 2px 8px rgba(0,0,0,.03);text-align:center;transition:all .3s ease}
-.feat-card-v2:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.09),0 4px 12px rgba(0,0,0,.04)}
-.feat-card-v2 .fc-icon{width:48px;height:48px;margin:0 auto 16px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#EDE9FE,#C4B5FD);box-shadow:0 4px 12px rgba(167,139,250,.2)}
-.feat-card-v2 .fc-icon svg{width:24px;height:24px;stroke:#7C3AED}
-.feat-card-v2 h3{font-size:18px;font-weight:700;margin-bottom:8px;color:#2C2C2C}
-.feat-card-v2 p{font-size:14px;color:#2C2C2C;line-height:1.65;opacity:.6}
-.feat-card-v2 .fc-img{width:100%;height:auto;max-height:90px;object-fit:contain;border-radius:10px;margin-top:14px}
-
-/* slogan */
-.slogan-banner-v2{width:100%;padding:36px 40px;background:linear-gradient(135deg,#EDE9FE,#DDD6FE);position:relative;overflow:hidden;text-align:center;box-shadow:0 4px 20px rgba(167,139,250,.12)}
-.slogan-banner-v2 .slogan-text{font-size:28px;font-weight:700;letter-spacing:-.3px;line-height:1.3;color:#6D28D9}
-@media(min-width:768px){.slogan-banner-v2 .slogan-text{font-size:34px}}
-
-/* accordion — warm card style */
-.accordion-wrap-v2{display:flex;gap:14px;height:400px}
-.accordion-item-v2{flex:1;border-radius:18px;background:#fff;position:relative;overflow:hidden;cursor:pointer;transition:flex .5s cubic-bezier(.23,1,.32,1),background .4s,box-shadow .4s;display:flex;flex-direction:column;justify-content:center;padding:22px 22px;box-shadow:0 6px 24px rgba(0,0,0,.05),0 2px 6px rgba(0,0,0,.03)}
-.accordion-item-v2 .ai-text{display:flex;flex-direction:column;justify-content:center;flex:0 0 auto}
-.accordion-item-v2 .ai-idx{font-size:12px;font-weight:700;letter-spacing:2px;color:#A78BFA;margin-bottom:4px;transition:color .4s}
-.accordion-item-v2 .ai-title{font-size:20px;font-weight:700;color:#2C2C2C;transition:all .4s;white-space:nowrap}
-.accordion-item-v2 .ai-desc{font-size:13px;color:#2C2C2C;line-height:1.6;transition:all .4s;max-height:0;overflow:hidden;margin-top:0;opacity:0}
-.accordion-item-v2 .ai-img-wrap{flex:0 0 0;overflow:hidden;display:flex;align-items:center;justify-content:center;transition:flex .5s cubic-bezier(.23,1,.32,1),margin .5s}
-.accordion-item-v2 .ai-img{width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .5s;max-height:100%}
-.accordion-item-v2.active{flex:3;justify-content:flex-start;padding:18px 20px 12px;background:linear-gradient(135deg,#A78BFA,#7C3AED);box-shadow:0 12px 36px rgba(167,139,250,.35)}
-.accordion-item-v2.active .ai-idx{color:#DDD6FE}
-.accordion-item-v2.active .ai-title{color:#fff;font-size:21px;margin-bottom:4px}
-.accordion-item-v2.active .ai-desc{color:rgba(255,255,255,.8);max-height:60px;overflow:visible;margin-top:2px;opacity:1}
-.accordion-item-v2.active .ai-img-wrap{flex:1 1 auto;min-height:0;margin-top:10px}
-.accordion-item-v2.active .ai-img{opacity:1}
-
-/* review card v2 */
-.review-card-v2{padding:28px 24px;border-radius:18px;box-shadow:0 8px 30px rgba(0,0,0,.06),0 2px 8px rgba(0,0,0,.03);transition:all .3s ease}
-.review-card-v2:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(0,0,0,.09),0 4px 12px rgba(0,0,0,.04)}
-.review-card-v2 .rc-text{font-size:14px;color:#2C2C2C;line-height:1.7;margin-bottom:14px;opacity:.75}
-.review-card-v2 .rc-author{display:flex;align-items:center;gap:10px}
-.review-card-v2 .rc-avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,.08);background:#EDE9FE}
-.review-card-v2 .rc-name{font-size:14px;font-weight:700;color:#2C2C2C}
-.review-card-v2 .rc-role{font-size:12px;color:#2C2C2C;opacity:.45}
-
-/* cta wrapper v2 */
-.cta-wrap-v2{border-radius:28px;padding:56px 44px;box-shadow:0 24px 64px rgba(0,0,0,.08),0 8px 24px rgba(0,0,0,.04);background:#fff;position:relative;overflow:hidden;text-align:center}
-.cta-wrap-v2::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,#A78BFA,#C4B5FD,#A78BFA)}
-
-/* reveal */
-.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
-.reveal.visible{opacity:1;transform:translateY(0)}
-
-::-webkit-scrollbar{width:5px}
-::-webkit-scrollbar-track{background:#F9F4EC}
-::-webkit-scrollbar-thumb{background:#C4B5FD;border-radius:3px}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片展示页</title>
+    <style>
+        body {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        h2 {
+            margin-top: 30px;
+            font-size: 18px;
+        }
+        img {
+            max-width: 100%;
+            margin: 10px 0;
+            display: block;
+        }
+    </style>
 </head>
 <body>
+    <h1>素材展示</h1>
 
-<div class="mesh-layer"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
+    <h2>图标类</h2>
+    <img src="images/360图标2.webp" alt="360图标2">
+    <img src="images/3603.webp" alt="3603">
 
-<!-- ===== NAVBAR ===== -->
-<nav class="fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-between px-6 lg:px-10" style="background:rgba(249,244,236,.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 1px 0 rgba(0,0,0,.05)">
-  <div class="flex items-center gap-3">
-    <img src="./images_v2/360-logo.png" alt="360录屏" class="h-9 w-auto object-contain block">
-  </div>
-  <ul class="flex items-center gap-8 list-none">
-    <li class="hidden lg:block"><a href="#" class="text-sm font-medium" style="color:#2C2C2C;text-decoration:none;opacity:.7">功能</a></li>
-    <li class="hidden lg:block"><a href="#" class="text-sm font-medium" style="color:#2C2C2C;text-decoration:none;opacity:.7">场景</a></li>
-    <li><a href="#" onclick="alert('下载 360录屏')" class="btn-primary-sm">立即下载</a></li>
-  </ul>
-</nav>
+    <h2>头像</h2>
+    <img src="images/avatar-1.png" alt="头像1">
+    <img src="images/avatar-2.png" alt="头像2">
+    <img src="images/avatar-3.png" alt="头像3">
 
-<!-- ===== HERO ===== -->
-<section class="min-h-screen flex items-center justify-center pt-20 pb-12 relative z-[1]">
-  <div class="w-full max-w-6xl mx-auto px-4 text-center">
-    <div class="inline-flex items-center gap-2.5 px-5 py-2" style="background:linear-gradient(135deg,#EDE9FE,#DDD6FE);border-radius:9999px;box-shadow:0 4px 16px rgba(167,139,250,.2)">
-      <span class="text-xs font-bold tracking-[1.5px]" style="color:#5B21B6">360</span>
-      <span class="text-xs font-medium" style="color:#6D28D9;opacity:.8">官方出品 ・ 安全可信</span>
-    </div>
+    <h2>功能图标</h2>
+    <img src="images/feature-camera.png" alt="相机功能">
+    <img src="images/feature-game.png" alt="游戏功能">
+    <img src="images/feature-screen.png" alt="录屏功能">
 
-    <h1 class="text-[32px] lg:text-[48px] font-semibold leading-[1.2] tracking-tight mt-6" style="color:#2C2C2C;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei','Inter',-apple-system,system-ui,sans-serif">
-      360官方出品：超清流畅的纯净录屏软件
-    </h1>
+    <h2>主视觉图</h2>
+    <img src="images/hero-main.png" alt="主视觉">
 
-    <p class="text-base lg:text-lg mt-5 max-w-2xl mx-auto" style="color:#2C2C2C;opacity:.55">
-      告别广告捆绑，简单易上手。支持全屏、窗口自定义录制，一键开启你的超清记录。
-    </p>
-
-    <div class="mt-10 flex justify-center px-2 lg:px-6">
-      <img src="./images_v2/hero-main.png" alt="360录屏主界面预览" class="w-full h-auto max-h-[700px] object-contain mx-auto shadow-soft-lg" style="border-radius:20px">
-    </div>
-
-    <div class="mt-8 flex flex-col items-center gap-2">
-      <button onclick="alert('下载 360录屏')" style="display:inline-flex;align-items:center;gap:12px;background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;font-weight:800;font-size:21px;padding:18px 48px;border:1px solid rgba(255,255,255,.15);border-radius:14px;cursor:pointer;box-shadow:0 10px 36px rgba(139,92,246,.4);transition:all .25s ease">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        立即下载
-      </button>
-      <div class="tag-pill-sm">&#10024; 适用于 WinAll (支持 Win7/Win10/Win11 等全系列系统)</div>
-      <div class="flex items-center gap-5 mt-1 text-xs" style="color:#2C2C2C;opacity:.35;letter-spacing:.4px">
-        <span class="flex items-center gap-1.5"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:#7C3AED"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> 360安全认证</span>
-        <span style="opacity:.3">|</span>
-        <span class="flex items-center gap-1.5"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:#7C3AED"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> 隐私保护认证</span>
-        <span style="opacity:.3">|</span>
-        <span class="flex items-center gap-1.5"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:#7C3AED"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> 360安全大脑驱动</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== SLOGAN ===== -->
-<section class="relative z-[1]">
-  <div class="slogan-banner-v2" id="sloganBanner">
-    <div class="slogan-text">游戏录制 <span style="opacity:.4">・</span> 课程录制 <span style="opacity:.4">・</span> 会议录制 <span style="opacity:.4">・</span> 直播录制</div>
-  </div>
-</section>
-
-<!-- ===== FEATURES ===== -->
-<section class="py-24 relative z-[1]">
-  <div class="w-full max-w-6xl mx-auto px-6 lg:px-10">
-    <div class="text-center reveal">
-      <span class="tag-pill" style="background:#FFEEE8;color:#E8613A">核心优势</span>
-      <h2 class="text-[34px] lg:text-[42px] font-extrabold tracking-[-1px] mt-4" style="color:#2C2C2C">灵活易用，纯净高效</h2>
-      <p class="mt-3 text-base" style="color:#2C2C2C;opacity:.5;max-width:480px;margin-left:auto;margin-right:auto;">三大核心能力，满足你的多样需求</p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-14">
-      <div class="feat-card-v2 reveal">
-        <div class="fc-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><line x1="4" y1="7" x2="20" y2="7"/></svg>
-        </div>
-        <h3>录屏区域任意切换</h3>
-        <p>全屏、特定窗口或自定义框选，想录哪里录哪里，保护隐私。</p>
-        <img src="./images_v2/feature-region.png" alt="录屏区域" class="fc-img">
-      </div>
-      <div class="feat-card-v2 reveal" style="transition-delay:.12s">
-        <div class="fc-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/><line x1="1" y1="9" x2="6" y2="9"/></svg>
-        </div>
-        <h3>4K高清 60帧录制</h3>
-        <p>拒绝马赛克与卡顿，还原最真实的屏幕色彩与流畅度。</p>
-        <img src="./images_v2/feature-4k.png" alt="4K高清" class="fc-img">
-      </div>
-      <div class="feat-card-v2 reveal" style="transition-delay:.24s">
-        <div class="fc-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-        </div>
-        <h3>独立摄像头/麦克风</h3>
-        <p>画面与人声完美同步，讲解更清晰。</p>
-        <img src="./images_v2/feature-media.png" alt="摄像头麦克风" class="fc-img">
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== SCENARIOS : ACCORDION ===== -->
-<section class="pb-24 relative z-[1]">
-  <div class="w-full max-w-6xl mx-auto px-6 lg:px-10">
-    <div class="text-center reveal">
-      <span class="tag-pill">使用场景</span>
-      <h2 class="text-[34px] lg:text-[42px] font-extrabold tracking-[-1px] mt-4" style="color:#2C2C2C">适配你的每一种场景</h2>
-      <p class="mt-3 text-base" style="color:#2C2C2C;opacity:.5;max-width:480px;margin-left:auto;margin-right:auto;">鼠标悬停查看详情</p>
-    </div>
-
-    <div class="accordion-wrap-v2 mt-14" id="accordionWrap">
-      <div class="accordion-item-v2 active" data-idx="0">
-        <div class="ai-text">
-          <div class="ai-idx">/ 01</div>
-          <div class="ai-title">日常办公 / 会议演示</div>
-          <div class="ai-desc">真实的办公桌面背景，搭配录屏软件的悬浮窗高效捕捉，完美适配职场汇报。</div>
-        </div>
-        <div class="ai-img-wrap">
-          <img src="./images_v2/scenario-office.png" alt="办公会议" class="ai-img">
-        </div>
-      </div>
-      <div class="accordion-item-v2" data-idx="1">
-        <div class="ai-text">
-          <div class="ai-idx">/ 02</div>
-          <div class="ai-title">课程录制</div>
-          <div class="ai-desc">清晰的网课/微课界面背景，完美同步人声与课件演示，教学更轻松。</div>
-        </div>
-        <div class="ai-img-wrap">
-          <img src="./images_v2/scenario-course.png" alt="课程录制" class="ai-img">
-        </div>
-      </div>
-      <div class="accordion-item-v2" data-idx="2">
-        <div class="ai-text">
-          <div class="ai-idx">/ 03</div>
-          <div class="ai-title">游戏录制</div>
-          <div class="ai-desc">激烈的高帧率游戏实况背景，无损记录精彩高光瞬间，低功耗不卡顿。</div>
-        </div>
-        <div class="ai-img-wrap">
-          <img src="./images_v2/scenario-game.png" alt="游戏录制" class="ai-img">
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== TESTIMONIALS ===== -->
-<section class="py-20 relative z-[1]">
-  <div class="w-full max-w-7xl mx-auto px-6 lg:px-10">
-    <div class="text-center reveal">
-      <span class="tag-pill" style="background:#FFEEE8;color:#E8613A">用户口碑</span>
-      <h2 class="text-[34px] lg:text-[42px] font-extrabold tracking-[-1px] mt-4" style="color:#2C2C2C">来自不同行业的真实评价</h2>
-      <p class="mt-3 text-base" style="color:#2C2C2C;opacity:.5;max-width:480px;margin-left:auto;margin-right:auto;">听听他们怎么说</p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-14">
-      <div class="review-card-v2 reveal" style="background:#EDE9FE">
-        <div class="flex items-center gap-3 mb-4">
-          <img src="./images_v2/avatar-hr.png" alt="HR" class="rc-avatar">
-          <div><div class="rc-name">陈女士</div><div class="rc-role">HR / 行政人员</div></div>
-        </div>
-        <p class="rc-text">" 以前录培训视频总是录到私人聊天窗口，现在用360的【指定窗口录制】，太省心了！"</p>
-      </div>
-      <div class="review-card-v2 reveal" style="transition-delay:.15s;background:#FFEEE8">
-        <div class="flex items-center gap-3 mb-4">
-          <img src="./images_v2/avatar-trainer.png" alt="内训师" class="rc-avatar">
-          <div><div class="rc-name">李老师</div><div class="rc-role">企业内训师</div></div>
-        </div>
-        <p class="rc-text">" 同时录屏幕和麦克风非常稳定，音画同步做得很好，导出的视频直接就能用。"</p>
-      </div>
-      <div class="review-card-v2 reveal" style="transition-delay:.3s;background:#EDE9FE">
-        <div class="flex items-center gap-3 mb-4">
-          <img src="./images_v2/avatar-gamer.png" alt="游戏玩家" class="rc-avatar">
-          <div><div class="rc-name">@阿飞</div><div class="rc-role">游戏玩家</div></div>
-        </div>
-        <p class="rc-text">" 冲着4K和60帧来的，录制3A大作一点都不卡，画质杠杠的，官方出品确实靠谱。"</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== FINAL CTA ===== -->
-<section class="pb-20 relative z-[1]">
-  <div class="w-full max-w-5xl mx-auto px-6 lg:px-10">
-    <div class="cta-wrap-v2 reveal">
-      <div class="relative z-[1]">
-        <div class="inline-flex items-center gap-2 px-4 py-1.5 mb-4" style="background:#EDE9FE;border-radius:9999px;box-shadow:0 2px 8px rgba(167,139,250,.12)">
-          <span class="text-[11px] font-bold tracking-[1.5px]" style="color:#5B21B6">360</span>
-          <span class="text-[11px]" style="color:#6D28D9;opacity:.8">官方出品 · 安全可信</span>
-        </div>
-        <h2 class="text-[30px] lg:text-[40px] font-extrabold tracking-[-.8px]" style="color:#2C2C2C">一键开启你的<br class="sm:hidden">超清记录</h2>
-        <div class="mt-8 flex flex-col items-center gap-2">
-          <button onclick="alert('下载 360录屏')" style="display:inline-flex;align-items:center;gap:12px;background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;font-weight:800;font-size:16px;padding:16px 36px;border:1px solid rgba(255,255,255,.15);border-radius:14px;cursor:pointer;box-shadow:0 10px 36px rgba(139,92,246,.4);transition:all .25s ease">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            免费下载
-          </button>
-          <div class="tag-pill-sm">&#10024; 适用于 WinAll (支持 Win7/Win10/Win11 等全系列系统)</div>
-          <div class="mt-3 text-xs flex flex-wrap justify-center gap-x-3 gap-y-1" style="color:#2C2C2C;opacity:.3;letter-spacing:.5px">
-            <span class="flex items-center gap-1"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:#7C3AED"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> 360安全认证</span>
-            <span style="opacity:.2">|</span>
-            <span>隐私保护认证</span>
-            <span style="opacity:.2">|</span>
-            <span>绿色无广告捆绑</span>
-            <span style="opacity:.2">|</span>
-            <span>适用于 WinAll 全系列系统</span>
-            <span style="opacity:.2">|</span>
-            <span>360安全大脑驱动</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<footer class="text-center py-8 text-xs relative z-[1]" style="color:#2C2C2C;opacity:.25;border-top:1px solid rgba(0,0,0,.06)">
-  360录屏 &copy; 2026  &nbsp;·&nbsp; 本页面为产品展示用途
-</footer>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script>
-gsap.registerPlugin(ScrollTrigger);
-
-// --- Accordion hover ---
-const items = document.querySelectorAll('.accordion-item-v2');
-items.forEach(item => {
-  item.addEventListener('mouseenter', () => {
-    items.forEach(i => i.classList.remove('active'));
-    item.classList.add('active');
-  });
-});
-document.getElementById('accordionWrap').addEventListener('mouseleave', () => {
-  items.forEach(i => i.classList.remove('active'));
-  items[0].classList.add('active');
-});
-
-// --- Slogan reveal ---
-gsap.from('#sloganBanner', {
-  scrollTrigger: { trigger: '#sloganBanner', start: 'top 90%', toggleActions: 'play none none none' },
-  opacity: 0, y: -16, duration: .9, ease: 'power3.out',
-});
-
-// --- Reveal observer ---
-const revObs = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: .1, rootMargin: '0px 0px -30px 0px' });
-document.querySelectorAll('.reveal').forEach(el => revObs.observe(el));
-
-// --- Hero fade-in ---
-gsap.from('.btn-primary', { opacity: 0, y: 16, duration: .7, delay: .3, ease: 'power2.out' });
-
-window.addEventListener('resize', () => ScrollTrigger.refresh());
-</script>
 </body>
 </html>
